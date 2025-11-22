@@ -1,76 +1,50 @@
-// FCFS CODE
-
 #include <stdio.h>
 
-typedef struct
+int main() 
 {
-    int pid;
-    int at;
-    int bt;
-    int tat;
-    int wt;
-    int ct;
-} P;
+    int n;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
 
-void sortbya(P p[], int n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = i + 1; j < n; j++)
-        {
-            if (p[j].at < p[i].at)
-            {
-                P t = p[i];
-                p[i] = p[j];
-                p[j] = t;
+    int pid[n], at[n], bt[n], ct[n], tat[n], wt[n];
+    
+    // Input
+    for(int i = 0; i < n; i++) {
+        printf("Enter PID, AT, BT: ");
+        scanf("%d %d %d", &pid[i], &at[i], &bt[i]);
+    }
+
+    // Sort by arrival time (simple bubble sort)
+    for(int i = 0; i < n-1; i++) {
+        for(int j = i+1; j < n; j++) {
+            if(at[j] < at[i]) {
+                int temp;
+
+                temp = at[i]; at[i] = at[j]; at[j] = temp;
+                temp = bt[i]; bt[i] = bt[j]; bt[j] = temp;
+                temp = pid[i]; pid[i] = pid[j]; pid[j] = temp;
             }
         }
     }
-}
 
-int main()
-{
-    int n;
-    scanf("%d", &n);
-    P p[n];
-    for (int i = 0; i < n; i++)
-    {
-        scanf("%d%d%d", &p[i].pid, &p[i].at, &p[i].bt);
+    // Calculations
+    int time = 0;
+    for(int i = 0; i < n; i++) {
+
+        if(time < at[i])
+            time = at[i]; // CPU idle wait
+
+        ct[i] = time + bt[i];
+        tat[i] = ct[i] - at[i];
+        wt[i] = tat[i] - bt[i];
+        time = ct[i];
     }
 
-    sortbya(p, n);
-    int cp = 0;
-    int totwt = 0;
-    int tottat = 0;
-    int st[n];
-    for (int i = 0; i < n; i++)
-    {
-        int start = (cp > p[i].at) ? cp : p[i].at;
-
-        st[i] = start;
-
-        p[i].ct = start + p[i].bt;
-        p[i].wt = start - p[i].at;
-        p[i].tat = p[i].ct - p[i].at;
-        cp = p[i].ct;
-
-        tottat += p[i].tat;
-        totwt += p[i].wt;
-    }
-    printf("Pid AT BT CT TAT WT");
-
-    for (int i = 0; i < n; i++)
-    {
-        printf("\nP%d %d %d %d %d %d \n", p[i].pid, p[i].at, p[i].bt, p[i].ct, p[i].tat, p[i].wt);
+    // Output
+    printf("\nPID  AT  BT  CT  TAT  WT\n");
+    for(int i = 0; i < n; i++) {
+        printf("%d   %d   %d   %d   %d    %d\n", pid[i], at[i], bt[i], ct[i], tat[i], wt[i]);
     }
 
-    printf("\nGANT CHART\n");
-    for (int i = 0; i < n; i++)
-    {
-        printf(" |%d P%d| ", st[i], p[i].pid);
-        for (int j = 0; j < p[i].bt; j++)
-            printf(" - ");
-    }
-    printf("\n");
     return 0;
 }
